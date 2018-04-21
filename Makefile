@@ -27,7 +27,7 @@ clean:
 	rm -f $(OBJS) $(EXECFILE) *.P *~ \#*
 
 $(EXECFILE): $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -std=c++11 -o $@ $(OBJS) $(LDFLAGS) $(LDLIBS)
 backup:
 	@make clean
 	@mkdir -p ~/backups; chmod 700 ~/backups
