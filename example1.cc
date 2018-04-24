@@ -18,7 +18,7 @@
 
 #define MATRIX_WIDTH 3
 #define MATRIX_HEIGHT 5
-#define BOX_WIDTH 15
+#define BOX_WIDTH 25
 #define MATRIX_NAME_STRING "Binary File Contents"
 
 
@@ -51,8 +51,8 @@ int main()
   CDKSCREEN	*cdkscreen;
   CDKMATRIX     *myMatrix;           // CDK Screen Matrix
 
-  const char 		*rowTitles[MATRIX_HEIGHT+1] = {"R0", "R1", "R2", "R3","R4", "R5"};
-  const char 		*columnTitles[MATRIX_WIDTH+1] = {"C0", "C1", "C2", "C3"};
+  const char 		*rowTitles[MATRIX_HEIGHT+1] = {"R0", "a", "b", "c","d", "e"};
+  const char 		*columnTitles[MATRIX_WIDTH+1] = {"C0", "a", "b", "c"};
   int		boxWidths[MATRIX_WIDTH+1] = {BOX_WIDTH, BOX_WIDTH, BOX_WIDTH, BOX_WIDTH};
   int		boxTypes[MATRIX_WIDTH+1] = {vMIXED, vMIXED, vMIXED, vMIXED};
 
@@ -86,7 +86,7 @@ int main()
   ///*** Read the header fro Binary File ***///
   BinaryFileHeader * headerRecord = new BinaryFileHeader (); //calling the default constructor  
   BinaryFileRecord * dataRecords [4];
-  for (int i = 0; i<4; i++)
+  for (size_t i = 0; i < 4; i++)
     {
       dataRecords[i] = new BinaryFileRecord ();
     }
@@ -102,9 +102,12 @@ int main()
       // cout << "Number of  Records: " << headerRecord->numRecords<<endl;
      
       /// *** Reading record data *** ////
-      for (int i = 0; i < headerRecord->numRecords; i++)
+      for (size_t i = 0; i < headerRecord->numRecords; i++)
 	{
 	  binInFile.read((char*)dataRecords[i], sizeof(BinaryFileRecord));
+	  //binInFile.read((char*)((dataRecords[i])->strLength), sizeof(BinaryFileRecord->strLength));
+	  //binInFile.read((char*)((dataRecords[i])->stringBuffer), sizeof(BinaryFileRecord->stringBuffer));
+	  //binInFile.read((char*)(dataRecords[i]->stringBuffer), sizeof(BinaryFileRecord->stringBuffer));
 	  //cout <<"String Length :  "<<dataRecords[i]->strLength;
 	  //cout <<"String : "<<dataRecords[i]->stringBuffer<<endl;
 	}
@@ -114,7 +117,6 @@ int main()
       cout << " Error: Failed to open the binary file "<< endl;
       _exit (1);
     }
-
   
   ///*** Dipslay Header data ***///
   
@@ -126,25 +128,29 @@ int main()
   numRec<<headerRecord->numRecords;
   string magicNum = "Magic: Ox"+ mNum.str();
   string versionNum = "Version: "+ vNum.str();
-  string numRecord = numRec.str();
+  string numRecord = "NumRecords: " + numRec.str();
 
   setCDKMatrixCell(myMatrix, 1, 1, magicNum.c_str() );
   setCDKMatrixCell(myMatrix, 1, 2, versionNum.c_str() );
   setCDKMatrixCell(myMatrix, 1, 3, numRecord.c_str() );
 
   ///*** Dipslay Record data ***///
-  //    int j = 0;
-  // for (int i = 2; i < (headerRecord->numRecords + 1); i++)
-  //  {
-	// setCDKMatrixCell(myMatrix, i, 1,dataRecords[j]->strLength);
-  //            setCDKMatrixCell(myMatrix, i, 1, dataRecords[j]->stringBuffer);
-  //    j++;
-  //   }
+      int j = 0;
+      char buffer[60]; // use to conver the string length
+
+   for (size_t i = 2; i <= (headerRecord->numRecords + 1); i++)
+    {
+      sprintf(buffer, "Strlen: %u", dataRecords[j]->strLength); // convertion of strLength to a c style string
+      printf("%s\n", buffer);
+      setCDKMatrixCell(myMatrix, i, 1, buffer); // printing the strLength to the matrix
+      setCDKMatrixCell(myMatrix, i, 2, dataRecords[j]->stringBuffer);// printing the string to the matrix
+      j++;
+     }
 
    drawCDKMatrix(myMatrix, true);    /* required  */
 
   /* so we can see results */
-  sleep (30);
+  sleep (15);
   
   ///*** closing the binary file ***///
   binInFile.close();
